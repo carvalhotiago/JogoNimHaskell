@@ -31,7 +31,7 @@ move board (row, stars)
 display :: Board -> String
 display board = List.intercalate "\n" (zipWith (++) numbers (stars board))
                 where numbers = ["1. ", "2. ", "3. ", "4. "]
-                      stars board = [(concat . take n) (repeat "| ")
+                      stars board = [(concat . take (2*n - 1)) (repeat "| ")
                                     | n <- Fol.toList board]
 
 -- The next methods are the ones that control IO
