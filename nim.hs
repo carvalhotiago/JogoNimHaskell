@@ -64,7 +64,7 @@ turn board player = do putStrLn ("\nVez do " ++ (show player) ++ "!")
 -- the next turn must be called
 isOver :: Board -> Player -> IO()
 isOver board player = do if board == Seq.fromList [0, 0, 0, 0]
-                           then putStrLn ("O " ++ (show player) ++ " perdeu!")
+                           then putStrLn ("O " ++ (show (change player)) ++ " ganhou!")
                            else do putStrLn ""
                                    putStrLn (display board)
                                    turn board player
