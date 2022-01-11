@@ -3,68 +3,68 @@ import qualified Data.Foldable as Fol
 import qualified Data.List as List
 import Data.Maybe
 
--- Player type is used to take control of the turns and who wins
-data Player = Jogador | Computador deriving (Show, Eq)
+-- Jogador type is used to take control of the turns and who wins
+data Jogador = Usuario | Computador deriving (Show, Eq)
 
--- Change player returns the player that is NOT the one passed as argument
-change :: Player -> Player
-change Jogador = Computador
-change Computador = Jogador
+-- Change jogador returns the jogador that is NOT the one passed as argument
+alterna :: Jogador -> Jogador
+alterna Usuario = Computador
+alterna Computador = Usuario
 
--- Board is an alias for a Sequence of Ints, as they allow us to update single
+-- Jogo is an alias for a Sequence of Ints, as they allow us to update single
 -- elements in easily.
-type Board = Seq.Seq Int
+type Jogo = Seq.Seq Int
 
--- This is the initial board structure
-initialBoard :: Board
-initialBoard = Seq.fromList [4, 3, 2, 1]
+-- This is the initial jogo structure
+initialJogo :: Jogo
+initialJogo = Seq.fromList [4, 3, 2, 1]
 
--- The move method checks if the a movement can be executed and returns the
--- updated board in case it is possible
-move :: Board -> (Int, Int) -> Maybe Board
-move board (row, stars)
-  | (Seq.index board row >= stars) && (
-          row < 4) = Just (Seq.adjust (\x -> x - stars) row board)
+-- The validaJogada method checks if the a movement can be executed and returns the
+-- updated jogo in case it is possible
+validaJogada :: Jogo -> (Int, Int) -> Maybe Jogo
+validaJogada jogo (fileira, palitos)
+  | (Seq.index jogo fileira >= palitos) && (
+          fileira < 4) = Just (Seq.adjust (\x -> x - palitos) fileira jogo)
   | otherwise = Nothing
 
--- The display methods transforms a Board into a nice, enumerated String of pipes
-display :: Board -> String
-display board = List.intercalate "\n" (zipWith (++) numbers (stars board))
+-- The exibejogo methods transforms a Jogo into a nice, enumerated String of pipes
+exibejogo :: Jogo -> String
+exibejogo jogo = List.intercalate "\n" (zipWith (++) numbers (palitos jogo))
                 where numbers = ["1. ", "2. ", "3. ", "4. "]
-                      stars board = [concat (replicate (2*n - 1) "| ")
-                                    | n <- Fol.toList board]
+                      palitos jogo = [concat (replicate (2*n - 1) "| ")
+                                    | n <- Fol.toList jogo]
 
 -- The next methods are the ones that control IO
 main :: IO ()
-main = nim
+main = jogoNim 
 
--- Main method welcomes the player, displays the initial board and calls the
+-- Main method welcomes the jogador, displays the initial jogo and calls the
 -- first turn
-nim :: IO ()
-nim = do putStrLn "Inicio do jogo Nim!"
-         putStrLn (display initialBoard)
-         turn initialBoard Jogador
+jogoNim :: IO ()
+jogoNim = do putStrLn "Inicio do jogo Nim!"
+             putStrLn (exibejogo initialJogo)
+             jogada initialJogo Usuario
 
--- The turn method displays the player and asks for a movement, then checks if
+-- The turn method displays the jogador and asks for a movement, then checks if
 -- there was a problem performing that movement and continues the game. This is
 -- the main game loop
-turn :: Board -> Player -> IO ()
-turn board player = do putStrLn ("\nVez do " ++ show player ++ "!")
-                       putStrLn "Escolha uma fileira:"
-                       row <- getLine
-                       putStrLn "Escolha a quantidade de palitos para remover:"
-                       stars <- getLine
-                       let newBoard = move board (read row - 1, read stars)
-                       if isNothing newBoard
-                         then do putStrLn "Invalido!"
-                                 turn board player
-                         else do isOver (fromJust newBoard) (change player)
+jogada :: Jogo -> Jogador -> IO ()
+jogada jogo jogadorAtual = do putStrLn ("\nVez do " ++ show jogadorAtual ++ "!")
+                              putStrLn "Escolha uma fileira:"
+                              fileira <- getLine
+                              putStrLn "Escolha a quantidade de palitos para remover:"
+                              palitos <- getLine
+                              let turnoAtual = validaJogada jogo (read fileira - 1, read palitos)
+                              if isNothing turnoAtual
+                                  then do putStrLn "Invalido!"
+                                          jogada jogo jogadorAtual
+                              else do isOver (fromJust turnoAtual) (alterna jogadorAtual)
 
--- isOver checks if the Board is empty, and checks whether the game is over or
+-- isOver checks if the Jogo is empty, and checks whether the game is over or
 -- the next turn must be called
-isOver :: Board -> Player -> IO()
-isOver board player = do if board == Seq.fromList [0, 0, 0, 0]
-                           then putStrLn ("O " ++ show (change player) ++ " ganhou!")
+isOver :: Jogo -> Jogador -> IO()
+isOver jogo jogador = do if jogo == Seq.fromList [0, 0, 0, 0]
+                           then putStrLn ("O " ++ show (alterna jogador) ++ " ganhou!")
                            else do putStrLn ""
-                                   putStrLn (display board)
-                                   turn board player
+                                   putStrLn (exibejogo jogo)
+                                   jogada jogo jogador
