@@ -1,7 +1,7 @@
 import qualified Data.Sequence as Seq
 import qualified Data.Foldable as Fol
 import qualified Data.List as List
-import Data.Maybe
+import Data.Maybe ( fromJust, isNothing )
 
 -- Jogador type is used to take control of the turns and who wins
 data Jogador = Usuario | Computador deriving (Show, Eq)
