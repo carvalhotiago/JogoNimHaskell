@@ -23,15 +23,15 @@ initialBoard = Seq.fromList [4, 3, 2, 1]
 -- updated board in case it is possible
 move :: Board -> (Int, Int) -> Maybe Board
 move board (row, stars)
-  | and [(Seq.index board row) >= stars,
-          row < 4] = Just (Seq.adjust (\x -> x - stars) row board)
+  | (Seq.index board row >= stars) && (
+          row < 4) = Just (Seq.adjust (\x -> x - stars) row board)
   | otherwise = Nothing
 
 -- The display methods transforms a Board into a nice, enumerated String of pipes
 display :: Board -> String
 display board = List.intercalate "\n" (zipWith (++) numbers (stars board))
                 where numbers = ["1. ", "2. ", "3. ", "4. "]
-                      stars board = [(concat . take (2*n - 1)) (repeat "| ")
+                      stars board = [concat (replicate (2*n - 1) "| ")
                                     | n <- Fol.toList board]
 
 -- The next methods are the ones that control IO
@@ -49,13 +49,13 @@ nim = do putStrLn "Inicio do jogo Nim!"
 -- there was a problem performing that movement and continues the game. This is
 -- the main game loop
 turn :: Board -> Player -> IO ()
-turn board player = do putStrLn ("\nVez do " ++ (show player) ++ "!")
+turn board player = do putStrLn ("\nVez do " ++ show player ++ "!")
                        putStrLn "Escolha uma fileira:"
                        row <- getLine
                        putStrLn "Escolha a quantidade de palitos para remover:"
                        stars <- getLine
-                       let newBoard = move board ((read row) - 1, read stars)
-                       if newBoard == Nothing
+                       let newBoard = move board (read row - 1, read stars)
+                       if isNothing newBoard
                          then do putStrLn "Invalido!"
                                  turn board player
                          else do isOver (fromJust newBoard) (change player)
@@ -64,7 +64,7 @@ turn board player = do putStrLn ("\nVez do " ++ (show player) ++ "!")
 -- the next turn must be called
 isOver :: Board -> Player -> IO()
 isOver board player = do if board == Seq.fromList [0, 0, 0, 0]
-                           then putStrLn ("O " ++ (show (change player)) ++ " ganhou!")
+                           then putStrLn ("O " ++ show (change player) ++ " ganhou!")
                            else do putStrLn ""
                                    putStrLn (display board)
                                    turn board player
