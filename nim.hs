@@ -1,49 +1,24 @@
 -- Jack Shipway | Haskell Coursework | 18/01/13 --
 -- I integrated code from the website: "http://bonsaicode.wordpress.com/2010/01/08/programming-praxis-nim/" Because I found difficulty in implementing the exclusive or (xor) function in order to play against the computer. The general background Of the game NIM comes from the wikipedia page of NIM --
 
-module TYPE_nim_TO_BEGIN where
+module Main where
 import System.IO
 import Data.Maybe
 import Data.Bits
 import Text.Printf
 import System.Random
 
-player = play [1,2,3,4,5] ["Player 1","Player 2"]
-vscompHard = computer [1,2,3,4,5]
-vscompEasy = computerEasy [1,2,3,4,5]
-nim :: IO ()
-nim = do
-    putStrLn "\n /L     /|    /L    /|L      /||"
-    putStrLn " || L   ||    ||    || L    / ||"
-    putStrLn " ||  L  ||    ||    ||  L  /  ||"
-    putStrLn " ||    L||   _||_   /|   L/   /|"
-    putStrLn "  _____________________________"
-    putStrLn " |   0  : Player Vs. Computer. |"  
-    putStrLn " |   1  : Player Vs. Player.   |"
-    putStrLn " |   2  : How To Play NIM!     |"
-    putStrLn "  -----------------------------"
-    putStr "-- Select An Option From Above, Are You Willing To Challenge Me? --\n"
-    c <- readLn
-    if c == 0
-        then putStrLn "-- Oh Dear, You Will Live To Regret that! --\n" >> difficulty
-    else if c == 1
-        then putStrLn "-- Very Interesting, Who's Gonna Win? --\n" >> player
-    else putStr "\n                                     -- HOW TO PLAY --\n" >> howToPlay
+main :: IO ()
+main = nim
 
-howToPlay :: IO ()
-howToPlay = do 
-           putStrLn "     Nim is a mathematical game of strategy in which two players take turns removing objects from distinct heaps. On each turn, a player must remove at least one object, and may remove any number of objects provided they all come from the same heap. In general the player who removes the last object from the board wins, however a variation on the game, known as Misere Nim, is that the player who removes the last object loses, which is the case when playing against another player in this game.\n"
-           putStrLn "1: Type the number of the row from which you wish to remove an object."
-           putStrLn "2: The Computer will then prompt you to type the number of objects you wish to remove from this pile, You may select as few or as many as you wish provided that it is physically possible."
-           putStrLn "3: Follow all other on screen instructions and most importantly enjoy playing NIM, try not to take everything i say in the game seriously, I'm just a very competitive PERSON."
-           putStrLn "4: There Is an Easy And A Hard Mode, I Suggest You Try Easy Mode To Begin With!\n"
-           putStrLn "1 : Get Me Started!"
-           putStrLn "0 : Back To Main Menu."
-           putStr "-- Select an Option From Above. --\n"
-           c <- readLn
-           if c == 1 
-               then putStrLn "-- Have Fun Playing NIM! --\n" >> vscompEasy
-           else putStr "-- GoodBye For Now. --\n" >> nim
+
+player = play [1,2,3,4,5] ["Player 1","Player 2"]
+vscompHard = computer [1,3,5,7]
+vscompEasy = computerEasy [1,3,5,7]
+
+nim :: IO ()
+nim = difficulty
+
 difficulty :: IO () 
 difficulty = do
 
