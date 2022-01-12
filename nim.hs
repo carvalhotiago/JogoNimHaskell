@@ -29,6 +29,15 @@ jogo tabuleiro jogador =
             mostraTabuleiro tabuleiro        
         jogo tabuleiro (alterna jogador)
 
+-- removePalitos :: [Int] -> Int
+-- removePalitos tabuleiro fileira qtdePalitos =
+--   if (jogadaValida tabuleiro fileira qtdePalitos) then do
+                                                  
+-- jogadaValida :: [Int] -> Int -> Int -> Bool 
+-- jogadaValida tabuleiro fileira qtdePalitos = if (tabuleiro !! (fileira-1)) >= qtdePalitos
+--                                                  then True 
+--                                              else False
+
 alterna :: Jogador -> Jogador
 alterna Usuario = Computador
 alterna Computador = Usuario
@@ -44,11 +53,11 @@ main = do
     putStrLn "Niveis de dificuldade:"
     putStrLn "0: Facil:\n1: Dificil"
     putStr "Selecione um nivel: "
-    dificuldade <- getLine
-    if dificuldade == "0" then do
+    dificuldade <- readLn
+    if dificuldade == Facil then do
         putStrLn "Iniciando jogo facil!"
         jogo tabuleiro Usuario
-    else if dificuldade == "1" then do
+    else if dificuldade == Dificil then do
         putStrLn "Iniciando jogo dificil!"
         jogo tabuleiro Computador
     else do
