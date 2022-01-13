@@ -1,3 +1,6 @@
+-- Arthur Mazzi
+-- Tiago Carvalho 201665118C
+
 {-# LANGUAGE BlockArguments #-}
 module Main where
 import qualified Data.Sequence as Seq
@@ -9,19 +12,20 @@ import Data.Maybe
 import System.Random
 
 data Jogador = Usuario | Computador deriving (Show, Eq)
+
 data Dificuldade = Facil | Dificil deriving (Show, Eq)
 
 tabuleiro :: Seq.Seq Int
 tabuleiro = Seq.fromList [1, 3, 5, 7]
 
-jogo :: Seq.Seq Int -> Jogador -> IO ()
-jogo tabuleiro jogador =
+jogo :: Seq.Seq Int -> Jogador -> Dificuldade -> IO ()
+jogo tabuleiro jogador dificuldade =
     if tabuleiro == Seq.fromList [0,0,0,0] then do
         putStrLn (show (alterna jogador) ++ " venceu!")
     else do
-        putStrLn ("\nVez do " ++ show jogador ++ ": \n")
-        mostraTabuleiro tabuleiro
+        putStrLn ("\nVez do " ++ show jogador ++ ": \n")        
         if jogador == Usuario then do
+            mostraTabuleiro tabuleiro
             putStr "\nSelecione uma fileira para remover palitos: "
             fileira <- getLine
             putStr "Selecione o numero de palitos a serem removidos: "
@@ -30,13 +34,17 @@ jogo tabuleiro jogador =
             let x = (read fileira :: Int)
             let y = (read numPalitosRemovidos :: Int)
             let tabuleiroAtualizado = jogadaUsuario tabuleiro (x-1) y
-            jogo tabuleiroAtualizado (alterna jogador)
+            jogo tabuleiroAtualizado (alterna jogador) Facil
         else do
-            fileiraAleatoria <- pegaFileiraNaoVaziaAleatoria tabuleiro
-            numeroPalitosAleatorio <- randomRIO (1, Seq.index tabuleiro fileiraAleatoria)
-            putStrLn ("\nO computador removeu " ++ show numeroPalitosAleatorio ++ " palitos da fileira " ++ (show (fileiraAleatoria+1)))
-            let tabuleiroAtualizado = removePalitos tabuleiro fileiraAleatoria numeroPalitosAleatorio
-            jogo tabuleiroAtualizado (alterna jogador)
+            if dificuldade == Facil then do
+                fileiraAleatoria <- pegaFileiraNaoVaziaAleatoria tabuleiro
+                numeroPalitosAleatorio <- randomRIO (1, Seq.index tabuleiro fileiraAleatoria)
+                putStrLn ("\nO computador removeu " ++ show numeroPalitosAleatorio ++ " palitos da fileira " ++ (show (fileiraAleatoria+1)))
+                let tabuleiroAtualizado = removePalitos tabuleiro fileiraAleatoria numeroPalitosAleatorio
+                jogo tabuleiroAtualizado (alterna jogador) Dificil
+            else do
+                putStrLn "Jogada dificil!"
+                jogo tabuleiro (alterna jogador) Dificil
 
 
 pegaFileiraNaoVaziaAleatoria :: Seq.Seq Int -> IO Int
@@ -61,7 +69,10 @@ removePalitos tabuleiro fileira qtdePalitos =
 
 jogadaValida :: Seq.Seq Int -> Int -> Int -> Bool
 jogadaValida tabuleiro fileira qtdePalitos =
-    Seq.index tabuleiro fileira >= qtdePalitos && fileira < 4 && fileira >= 0
+       Seq.index tabuleiro fileira >= qtdePalitos
+    && Seq.index tabuleiro fileira >= 1
+    && fileira < 4
+    && fileira >= 0
 
 
 alterna :: Jogador -> Jogador
@@ -81,14 +92,13 @@ main = do
     putStrLn "Selecione um nivel de dificuldade abaixo:"
     putStrLn "0: Facil\n1: Dificil\n"
     putStr "Nivel: "
-    dificuldade <- getLine
-    putStr "\n"
-    if dificuldade == "0" then do
-        putStrLn "Iniciando jogo no nivel facil!\n"
-        jogo tabuleiro Usuario
-    else if dificuldade == "1" then do
-        putStrLn "Iniciando jogo no nivel dificil!\n"
-        jogo tabuleiro Computador
+    nivel <- getLine
+    if nivel == "0" then do
+        putStrLn "\nIniciando jogo no nivel facil!\n"
+        jogo tabuleiro Usuario Facil
+    else if nivel == "1" then do
+        putStrLn "\nIniciando jogo no nivel dificil!\n"
+        jogo tabuleiro Computador Dificil
     else do
         putStrLn "Dificuldade invalida!"
         main
