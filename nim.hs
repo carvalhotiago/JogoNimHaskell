@@ -19,13 +19,14 @@ jogo tabuleiro jogador =
     if tabuleiro == Seq.fromList [0,0,0,0] then do
         putStrLn (show (alterna jogador) ++ " venceu!")
     else do
-        putStrLn ("Vez do " ++ show jogador)
+        putStrLn ("\nVez do " ++ show jogador ++ ": \n")
         mostraTabuleiro tabuleiro
         if jogador == Usuario then do
-            putStr "Selecione uma fileira: "
+            putStr "\nSelecione uma fileira para remover palitos: "
             fileira <- getLine
-            putStrLn "\nSelecione o numero de palitos a serem removidos: "
+            putStr "Selecione o numero de palitos a serem removidos: "
             numPalitosRemovidos <- getLine
+            putStr "\n"
             let x = (read fileira :: Int)
             let y = (read numPalitosRemovidos :: Int)
             let tabuleiroAtualizado = jogadaUsuario tabuleiro (x-1) y
@@ -33,14 +34,10 @@ jogo tabuleiro jogador =
         else do
             fileiraAleatoria <- pegaFileiraNaoVaziaAleatoria tabuleiro
             numeroPalitosAleatorio <- randomRIO (1, Seq.index tabuleiro fileiraAleatoria)
-            putStr "O computador removeu " 
-            print numeroPalitosAleatorio
-            putStr " palitos da fileira "
-            print (fileiraAleatoria+1)
-            putStrLn "\n"
+            putStrLn ("\nO computador removeu " ++ show numeroPalitosAleatorio ++ " palitos da fileira " ++ (show (fileiraAleatoria+1)))
             let tabuleiroAtualizado = removePalitos tabuleiro fileiraAleatoria numeroPalitosAleatorio
             jogo tabuleiroAtualizado (alterna jogador)
-            
+
 
 pegaFileiraNaoVaziaAleatoria :: Seq.Seq Int -> IO Int
 pegaFileiraNaoVaziaAleatoria tabuleiro = do
@@ -80,16 +77,18 @@ mostraTabuleiro tabuleiro = do putStrLn ("1: " ++ replicate (head (Fol.toList ta
 
 main :: IO ()
 main = do
-    putStrLn "Niveis de dificuldade:"
-    putStrLn "0: Facil:\n1: Dificil"
-    putStr "Selecione um nivel: "
+    putStrLn "\n --- BEM VINDO AO JOGO NIM! ---\n"
+    putStrLn "Selecione um nivel de dificuldade abaixo:"
+    putStrLn "0: Facil\n1: Dificil\n"
+    putStr "Nivel: "
     dificuldade <- getLine
+    putStr "\n"
     if dificuldade == "0" then do
-        putStrLn "Iniciando jogo facil!"
+        putStrLn "Iniciando jogo no nivel facil!\n"
         jogo tabuleiro Usuario
     else if dificuldade == "1" then do
-        putStrLn "Iniciando jogo dificil!"
+        putStrLn "Iniciando jogo no nivel dificil!\n"
         jogo tabuleiro Computador
     else do
-        putStrLn "Dificuldade invalida"
+        putStrLn "Dificuldade invalida!"
         main
