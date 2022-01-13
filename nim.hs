@@ -6,6 +6,7 @@ import Data.Char ()
 import Lib ()
 import Data.Array.MArray.Safe (mapIndices)
 import Data.Maybe
+import System.Random
 
 data Jogador = Usuario | Computador deriving (Show, Eq)
 data Dificuldade = Facil | Dificil deriving (Show, Eq)
@@ -15,12 +16,12 @@ tabuleiro = Seq.fromList [1, 3, 5, 7]
 
 jogo :: Seq.Seq Int -> Jogador -> IO ()
 jogo tabuleiro jogador =
-    if tabuleiro == Seq.fromList [0,0,0,0] then
-        putStrLn (show jogador ++ " venceu!")
+    if tabuleiro == Seq.fromList [0,0,0,0] then do
+        putStrLn (show (alterna jogador) ++ " venceu!")
     else do
         putStrLn ("Vez do " ++ show jogador)
+        mostraTabuleiro tabuleiro
         if jogador == Usuario then do
-            mostraTabuleiro tabuleiro
             putStr "Selecione uma fileira: "
             fileira <- getLine
             putStrLn "\nSelecione o numero de palitos a serem removidos: "
@@ -29,9 +30,25 @@ jogo tabuleiro jogador =
             let y = (read numPalitosRemovidos :: Int)
             let tabuleiroAtualizado = jogadaUsuario tabuleiro (x-1) y
             jogo tabuleiroAtualizado (alterna jogador)
-        else
-            mostraTabuleiro tabuleiro
+        else do
+            fileiraAleatoria <- pegaFileiraNaoVaziaAleatoria tabuleiro
+            numeroPalitosAleatorio <- randomRIO (1, Seq.index tabuleiro fileiraAleatoria)
+            putStr "O computador removeu " 
+            print numeroPalitosAleatorio
+            putStr " palitos da fileira "
+            print (fileiraAleatoria+1)
+            putStrLn "\n"
+            let tabuleiroAtualizado = removePalitos tabuleiro fileiraAleatoria numeroPalitosAleatorio
+            jogo tabuleiroAtualizado (alterna jogador)
+            
 
+pegaFileiraNaoVaziaAleatoria :: Seq.Seq Int -> IO Int
+pegaFileiraNaoVaziaAleatoria tabuleiro = do
+    fileiraAleatoria <- randomRIO (0, 3)
+    if Seq.index tabuleiro fileiraAleatoria == 0 then
+        pegaFileiraNaoVaziaAleatoria tabuleiro
+    else
+        return fileiraAleatoria
 
 jogadaUsuario :: Seq.Seq Int -> Int -> Int -> Seq.Seq Int
 jogadaUsuario tabuleiro fileira palitos =
