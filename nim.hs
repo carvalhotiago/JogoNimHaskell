@@ -40,7 +40,7 @@ jogo tabuleiro jogador dificuldade =
             if dificuldade == Facil then do
                 fileiraAleatoria <- pegaFileiraNaoVaziaAleatoria tabuleiro
                 numeroPalitosAleatorio <- randomRIO (1, Seq.index tabuleiro fileiraAleatoria)
-                putStrLn ("\nO computador removeu " ++ show numeroPalitosAleatorio ++ " palitos da fileira " ++ (show (fileiraAleatoria+1)))
+                putStrLn ("\nO computador aleatoriamente " ++ show numeroPalitosAleatorio ++ " palitos da fileira " ++ (show (fileiraAleatoria+1)))
                 let tabuleiroAtualizado = removePalitos tabuleiro fileiraAleatoria numeroPalitosAleatorio
                 jogo tabuleiroAtualizado (alterna jogador) Dificil
             else do
@@ -50,7 +50,17 @@ jogo tabuleiro jogador dificuldade =
                 let b = dec2bin (Seq.index tabuleiro 1)
                 let c = dec2bin (Seq.index tabuleiro 2)
                 let d = dec2bin (Seq.index tabuleiro 3)                
-                -- FALTA ISSO AQUI, PREENCHER AS LISTAS COM MENOS DE 3 ELEMENTOS COM ZEROS A ESQUERDA
+
+                let a1 = preencheComZerosAEsquerda a
+                let b1 = preencheComZerosAEsquerda b
+                let c1 = preencheComZerosAEsquerda c
+                let d1 = preencheComZerosAEsquerda d
+
+                print(a1)
+                print(b1)
+                print(c1)
+                print(d1)
+
                 -- Soma as fileiras
                 let fileira1 = c !! 0 + d !! 0
                 let fileira2 = b !! 0 + c !! 1 + d !! 1
@@ -67,15 +77,19 @@ jogo tabuleiro jogador dificuldade =
 
                 if listaRemover == a then do                    
                     let tabuleiroAtualizado = removePalitos tabuleiro 0 numeroPalitos
+                    putStrLn ("\nO computador removeu " ++ show numeroPalitos ++ " palitos da fileira " ++ (show (0+1)))
                     jogo tabuleiroAtualizado (alterna jogador) Dificil
                 else if listaRemover == b then do 
                     let tabuleiroAtualizado = removePalitos tabuleiro 1 numeroPalitos
+                    putStrLn ("\nO computador removeu " ++ show numeroPalitos ++ " palitos da fileira " ++ (show (1+1)))
                     jogo tabuleiroAtualizado (alterna jogador) Dificil
                 else if listaRemover == c then do
                     let tabuleiroAtualizado = removePalitos tabuleiro 2 numeroPalitos
+                    putStrLn ("\nO computador removeu " ++ show numeroPalitos ++ " palitos da fileira " ++ (show (2+1)))
                     jogo tabuleiroAtualizado (alterna jogador) Dificil
                 else do
                     let tabuleiroAtualizado = removePalitos tabuleiro 3 numeroPalitos
+                    putStrLn ("\nO computador removeu " ++ show numeroPalitos ++ " palitos da fileira " ++ (show (3+1)))
                     jogo tabuleiroAtualizado (alterna jogador) Dificil
 
 pegaFileiraNaoVaziaAleatoria :: Seq.Seq Int -> IO Int
@@ -86,10 +100,22 @@ pegaFileiraNaoVaziaAleatoria tabuleiro = do
     else
         return fileiraAleatoria
 
-addNumbers :: [a] Int -> IO [Int]
-addNumbers 0 = return []
-addNumbers n = do a <- 0
-                return (n:ns)
+preencheComZerosAEsquerda :: [Int] -> [Int]
+preencheComZerosAEsquerda lista =
+    if length lista == 2 then
+        concat [[0], lista]
+    else if length lista == 1 then
+        concat [[0,0], lista]
+    else if length lista == 0 then
+        [0,0,0]
+    else
+        lista
+
+binToDec :: [Bool] -> Int
+binToDec = foldr (\x y -> fromEnum x + 2*y) 0
+
+padLeft :: Int -> a -> [a] -> [a]
+padLeft n x xs = replicate (n - length xs) x ++ xs
 
 jogadaUsuario :: Seq.Seq Int -> Int -> Int -> Seq.Seq Int
 jogadaUsuario tabuleiro fileira palitos =
