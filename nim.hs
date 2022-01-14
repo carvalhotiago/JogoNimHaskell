@@ -1,4 +1,4 @@
--- Arthur Mazzi
+-- Arthur Mazzi 201765012C
 -- Tiago Carvalho 201665118C
 
 {-# LANGUAGE BlockArguments #-}
@@ -6,6 +6,7 @@ module Main where
 import qualified Data.Sequence as Seq
 import qualified Data.Foldable as Fol
 import Data.Char ()
+import Data.List (length)
 import Lib ()
 import Data.Array.MArray.Safe (mapIndices)
 import Data.Maybe
@@ -43,9 +44,39 @@ jogo tabuleiro jogador dificuldade =
                 let tabuleiroAtualizado = removePalitos tabuleiro fileiraAleatoria numeroPalitosAleatorio
                 jogo tabuleiroAtualizado (alterna jogador) Dificil
             else do
-                putStrLn "Jogada dificil!"
-                jogo tabuleiro (alterna jogador) Dificil
+                mostraTabuleiro tabuleiro
+                -- converte palitos de cada fileira para binario
+                let a = dec2bin (Seq.index tabuleiro 0)
+                let b = dec2bin (Seq.index tabuleiro 1)
+                let c = dec2bin (Seq.index tabuleiro 2)
+                let d = dec2bin (Seq.index tabuleiro 3)                
+                -- FALTA ISSO AQUI, PREENCHER AS LISTAS COM MENOS DE 3 ELEMENTOS COM ZEROS A ESQUERDA
+                -- Soma as fileiras
+                let fileira1 = c !! 0 + d !! 0
+                let fileira2 = b !! 0 + c !! 1 + d !! 1
+                let fileira3 = a !! 0 + b !! 1 + c !! 2 + d !! 2
+                -- Cria a lista final com as somas decimais
+                let fileiras = [fileira1, fileira2, fileira3]
+                -- Cria a fileira esperada a ser removida
+                let listaRemover = [fromEnum (even fileira1), fromEnum (even fileira2), fromEnum (even fileira3)]
+                -- Cria a fileira que será usada para contar o numero de palitos
+                let listaRemoverBool = [even fileira1, even fileira2, even fileira3]
+                print(listaRemover)
 
+                let numeroPalitos = binToDec listaRemoverBool
+
+                if listaRemover == a then do                    
+                    let tabuleiroAtualizado = removePalitos tabuleiro 0 numeroPalitos
+                    jogo tabuleiroAtualizado (alterna jogador) Dificil
+                else if listaRemover == b then do 
+                    let tabuleiroAtualizado = removePalitos tabuleiro 1 numeroPalitos
+                    jogo tabuleiroAtualizado (alterna jogador) Dificil
+                else if listaRemover == c then do
+                    let tabuleiroAtualizado = removePalitos tabuleiro 2 numeroPalitos
+                    jogo tabuleiroAtualizado (alterna jogador) Dificil
+                else do
+                    let tabuleiroAtualizado = removePalitos tabuleiro 3 numeroPalitos
+                    jogo tabuleiroAtualizado (alterna jogador) Dificil
 
 pegaFileiraNaoVaziaAleatoria :: Seq.Seq Int -> IO Int
 pegaFileiraNaoVaziaAleatoria tabuleiro = do
@@ -55,12 +86,21 @@ pegaFileiraNaoVaziaAleatoria tabuleiro = do
     else
         return fileiraAleatoria
 
+addNumbers :: [a] Int -> IO [Int]
+addNumbers 0 = return []
+addNumbers n = do a <- 0
+                return (n:ns)
+
 jogadaUsuario :: Seq.Seq Int -> Int -> Int -> Seq.Seq Int
 jogadaUsuario tabuleiro fileira palitos =
     if jogadaValida tabuleiro fileira palitos then
         removePalitos tabuleiro fileira palitos
     else tabuleiro
 
+dec2bin :: (Integral a) => a -> [a]
+dec2bin = reverse . dec2bin'
+  where dec2bin' 0 = []
+        dec2bin' x = (x `mod` 2) : dec2bin' (x `quot` 2)
 
 removePalitos :: Seq.Seq Int -> Int -> Int -> Seq.Seq Int
 removePalitos tabuleiro fileira qtdePalitos =
