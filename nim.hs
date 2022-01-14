@@ -9,8 +9,6 @@ import Data.Char ()
 import Data.List (length)
 import Data.Bool(bool)
 import Lib ()
-import Data.Array.MArray.Safe (mapIndices)
-import Data.Maybe
 import System.Random
 
 data Jogador = Usuario | Computador deriving (Show, Eq)
@@ -25,8 +23,8 @@ jogo tabuleiro jogador dificuldade =
     if tabuleiro == Seq.fromList [0,0,0,0] then
         putStrLn (show (alterna jogador) ++ " venceu!")
     else do
-        putStrLn ("\nVez do " ++ show jogador ++ ": \n")
         if jogador == Usuario then do
+            putStrLn "\nVez do usuario: \n"
             mostraTabuleiro tabuleiro
             putStr "\nSelecione uma fileira para remover palitos: "
             fileira <- getLine
@@ -39,6 +37,7 @@ jogo tabuleiro jogador dificuldade =
             jogo tabuleiroAtualizado (alterna jogador) dificuldade
         else do
             if dificuldade == Facil then do
+                putStrLn "\nVez do computador: \n"
                 fileiraAleatoria <- pegaFileiraNaoVaziaAleatoria tabuleiro
                 numeroPalitosAleatorio <- randomRIO (1, Seq.index tabuleiro fileiraAleatoria)
                 putStrLn ("\nO computador aleatoriamente " ++ show numeroPalitosAleatorio ++ " palitos da fileira " ++ show (fileiraAleatoria+1))
@@ -46,33 +45,30 @@ jogo tabuleiro jogador dificuldade =
                 jogo tabuleiroAtualizado (alterna jogador) Facil
             else do
                 if tabuleiro == Seq.fromList [1, 3, 5, 7] then do
+                    putStrLn "\nVez do computador: \n"
                     putStrLn ("\nO computador removeu " ++ show 1 ++ " palitos da fileira " ++ show (0+1))
                     let tabuleiroAtualizado = removePalitos tabuleiro 0 1
                     jogo tabuleiroAtualizado (alterna jogador) Dificil
                 else do
-                    mostraTabuleiro tabuleiro
                     fileiraAleatoria <- pegaFileiraNaoVaziaAleatoria tabuleiro
                     numeroPalitosAleatorio <- randomRIO (1, Seq.index tabuleiro fileiraAleatoria)
                     let tabuleiroSomaZero = removePalitos tabuleiro fileiraAleatoria numeroPalitosAleatorio
 
                     -- converte palitos de cada fileira para binario
-                    let a = preencheComZerosAEsquerda (dec2bin (Seq.index tabuleiroSomaZero 0))
-                    let b = preencheComZerosAEsquerda (dec2bin (Seq.index tabuleiroSomaZero 1))
-                    let c = preencheComZerosAEsquerda (dec2bin (Seq.index tabuleiroSomaZero 2))
-                    let d = preencheComZerosAEsquerda (dec2bin (Seq.index tabuleiroSomaZero 3))
+                    let fileira1Bin = preencheComZerosAEsquerda (dec2bin (Seq.index tabuleiroSomaZero 0))
+                    let fileira2Bin = preencheComZerosAEsquerda (dec2bin (Seq.index tabuleiroSomaZero 1))
+                    let fileira3Bin = preencheComZerosAEsquerda (dec2bin (Seq.index tabuleiroSomaZero 2))
+                    let fileira4Bin = preencheComZerosAEsquerda (dec2bin (Seq.index tabuleiroSomaZero 3))
 
                     -- Soma as fileiras
-                    let fileira1 = head a + b !! 0 + c !! 0 + d !! 0
-                    let fileira2 = a !! 1 + b !! 1 + c !! 1 + d !! 1
-                    let fileira3 = a !! 2 + b !! 2 + c !! 2 + d !! 2
-                    -- Cria a lista final com as somas decimais
-                    let fileiras = [fileira1, fileira2, fileira3]
-                    print fileiras
-                    
-                    -- Cria a fileira esperada a ser removida
-                    let listaRemover = [fromEnum (odd fileira1), fromEnum (odd fileira2), fromEnum (odd fileira3)]
-                    
-                    if listaRemover == [0,0,0] then
+                    let somaColuna1 = fileira1Bin !! 0 + fileira2Bin !! 0 + fileira3Bin !! 0 + fileira4Bin !! 0
+                    let somaColuna2 = fileira1Bin !! 1 + fileira2Bin !! 1 + fileira3Bin !! 1 + fileira4Bin !! 1
+                    let somaColuna3 = fileira1Bin !! 2 + fileira2Bin !! 2 + fileira3Bin !! 2 + fileira4Bin !! 2
+
+                    let listaNim = [fromEnum (odd somaColuna1), fromEnum (odd somaColuna2), fromEnum (odd somaColuna3)]
+
+                    if listaNim == [0,0,0] then do
+                        putStrLn "\nVez do computador: "
                         jogo tabuleiroSomaZero (alterna jogador) Dificil
                     else
                         jogo tabuleiro jogador dificuldade
@@ -88,19 +84,16 @@ pegaFileiraNaoVaziaAleatoria tabuleiro = do
 preencheComZerosAEsquerda :: [Int] -> [Int]
 preencheComZerosAEsquerda lista
   | length lista == 2 =
-    concat [[0], lista]
+       [0] ++ lista
   | length lista == 1 =
-    concat [[0,0], lista]
+       [0,0] ++ lista
   | length lista == 0 =
-    [0,0,0]
+       [0,0,0]
   | otherwise =
-    lista
+       lista
 
 bin2dec :: (Foldable f, Integral i) => f Bool -> i
 bin2dec = foldl (\a -> (+) (2*a) . bool 0 1) 0
-
-padLeft :: Int -> a -> [a] -> [a]
-padLeft n x xs = replicate (n - length xs) x ++ xs
 
 jogadaUsuario :: Seq.Seq Int -> Int -> Int -> Seq.Seq Int
 jogadaUsuario tabuleiro fileira palitos =
