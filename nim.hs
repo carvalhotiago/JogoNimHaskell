@@ -18,7 +18,7 @@ data Jogador = Usuario | Computador deriving (Show, Eq)
 data Dificuldade = Facil | Dificil deriving (Show, Eq)
 
 tabuleiro :: Seq.Seq Int
-tabuleiro = Seq.fromList [1, 3, 2, 7]
+tabuleiro = Seq.fromList [1, 3, 5, 7]
 
 jogo :: Seq.Seq Int -> Jogador -> Dificuldade -> IO ()
 jogo tabuleiro jogador dificuldade =
@@ -85,8 +85,10 @@ jogo tabuleiro jogador dificuldade =
                 let third = Seq.index tabuleiro 2
                 let fourth = Seq.index tabuleiro 3                
 
-                if (first >= second && first >= third && first >= fourth) then do                    
-                    if(first == 2) then do
+                let ePrimeiraJogada = (tabuleiro == Seq.fromList [1,3,5,7])
+
+                if (first >= second && first >= third && first >= fourth || ePrimeiraJogada) then do                    
+                    if(first == 2 || ePrimeiraJogada) then do
                         putStrLn ("\nO computador removeu " ++ show 1 ++ " palitos da fileira " ++ (show (0+1)))
                         let tabuleiroAtualizado = removePalitos tabuleiro 0 1
                         jogo tabuleiroAtualizado (alterna jogador) Dificil    
