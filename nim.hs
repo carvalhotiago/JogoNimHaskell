@@ -85,9 +85,6 @@ pegaFileiraNaoVaziaAleatoria tabuleiro = do
     else
         return fileiraAleatoria
 
-replaceAtIndex :: Int -> a -> [a] -> [a]
-replaceAtIndex i x xs = take i xs ++ [x] ++ drop (i+1) xs
-
 preencheComZerosAEsquerda :: [Int] -> [Int]
 preencheComZerosAEsquerda lista
   | length lista == 2 =
