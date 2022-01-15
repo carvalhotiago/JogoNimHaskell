@@ -69,6 +69,7 @@ jogo tabuleiro jogador dificuldade =
 
                     if listaNim == [0,0,0] then do
                         putStrLn "\nVez do computador: "
+                        putStrLn ("\nO computador removeu " ++ show numeroPalitosAleatorio ++ " palitos da fileira " ++ show (fileiraAleatoria+1))
                         jogo tabuleiroSomaZero (alterna jogador) Dificil
                     else
                         jogo tabuleiro jogador dificuldade
