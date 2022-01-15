@@ -31,9 +31,9 @@ jogo tabuleiro jogador dificuldade =
             putStr "Selecione o numero de palitos a serem removidos: "
             numPalitosRemovidos <- getLine
             putStr "\n"
-            let x = (read fileira :: Int)
-            let y = (read numPalitosRemovidos :: Int)
-            let tabuleiroAtualizado = jogadaUsuario tabuleiro (x-1) y
+            let fileiraInt = (read fileira :: Int)
+            let palitosInt = (read numPalitosRemovidos :: Int)
+            let tabuleiroAtualizado = jogadaUsuario tabuleiro (fileiraInt-1) palitosInt
             jogo tabuleiroAtualizado (alterna jogador) dificuldade
         else do
             if dificuldade == Facil then do
